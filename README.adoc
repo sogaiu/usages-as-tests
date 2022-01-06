@@ -1,0 +1,113 @@
+= usages-as-tests - Generate and Run Tests from Usage Examples
+:toc:
+
+== Aims
+
+* Make simple testing low-cost and automatable especially during
+  exploratory coding when using Janet.
+
+* Encourage the creation of illustrative examples to help potential users
+  form appropriate mental models.
+
+* Capture developers' original intent as usages during initial
+  development.
+
+== Status and Warnings
+
+This is an early stage project.  The author uses it in a number of
+projects though.  Be sure to examine the link:doc/warning.adoc[fine print].
+
+== How
+
+* Within `comment` blocks, put expressions / forms to be tested along
+  with brief records of expected values:
++
+[source,janet]
+----
+(comment
+
+  (- 1 1)
+  # =>
+  0
+
+  )
+----
++
+Note the use of a single line comment and `=>` (sometimes referred to
+as a "test indicator") and a subsequent expression to express an
+expected return value.
++
+One might call the form + test indicator and expected value expression
+a "comment block usage" or "comment block test"
++
+See link:doc/tips.adoc[Usage / Test Writing Tips] for more details.
+
+* Once some setup steps are followed, usages / tests can be executed
+  by: `jpm test`
+
+== Example Setup
+
+Suppose there's a project directory like:
+
+----
+.
+├── my-src-dir
+│   └── fun.janet
+├── project.janet
+└── test
+    └── test.janet
+----
+
+0. Decide on a name for the directory to hold comment block tests,
+   e.g. `examples`.
+1. Copy the file `test/usages-as-tests.janet` from this repository to the
+   target project's `test` subdirectory and rename it to
+   `examples.janet`.
+3. Create a direct subdirectory of the project root directory named
+   `examples` to house comment block usages / tests.
+4. Within the `examples` directory, create at least one file with a
+   comment block usage/test in it.
+
+Now it should look something like:
+
+----
+.
+├── examples
+│   └── nice-samples.janet
+├── my-src-dir
+│   └── fun.janet
+├── project.janet
+└── test
+    ├── examples.janet
+    └── test.janet
+----
+
+See link:doc/details.adoc[Details] for additional information regarding
+the various files and directories.
+
+== Usage
+
+To run the usages/tests and get a report: `jpm test`
+
+Add more usages / tests / examples by creating more comment block usages
+in files that live in an appropriate directory.
+
+== Sample Repositories
+
+This repository can serve as an example, but here are some others:
+
+* https://github.com/sogaiu/janet-bits[janet-bits]
+* https://github.com/sogaiu/janet-peg[janet-peg]
+* https://github.com/sogaiu/janet-zipper[janet-zipper]
+* https://github.com/sogaiu/janet-xmlish[janet-xmlish]
+* https://github.com/sogaiu/margaret[margaret]
+
+== Acknowledgments
+
+* andrewchambers - suggestion and explanation
+* bakpakin - janet, jpm, helper.janet, path.janet, peg for janet, etc.
+* pepe - discussion, One-Shot Power Util Solver ™ motivation, and naming
+* pyrmont - discussion and exploration
+* rduplain - bringing to light customization of `jpm test`
+* Saikyun - discussion and testing
+* srnb@gitlab - suggestion
