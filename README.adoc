@@ -59,13 +59,12 @@ Suppose there's a project directory like:
 ----
 
 0. Decide on a name for the directory to hold comment block tests,
-   e.g. `examples`.
+   e.g. `examples`, then create a direct subdirectory of the project root
+   directory using the name (e.g. `examples`).
 1. Copy the file `test/usages-as-tests.janet` from this repository to the
    target project's `test` subdirectory and rename it to
    `examples.janet`.
-3. Create a direct subdirectory of the project root directory named
-   `examples` to house comment block usages / tests.
-4. Within the `examples` directory, create at least one file with a
+2. Within the `examples` directory, create at least one file with a
    comment block usage/test in it.
 
 Now it should look something like:
