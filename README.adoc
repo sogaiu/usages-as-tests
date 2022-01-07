@@ -65,7 +65,8 @@ Suppose there's a project directory like:
    target project's `test` subdirectory and rename it to
    `examples.janet`.
 2. Within the `examples` directory, create at least one file with a
-   comment block usage/test in it.
+   comment block usage/test in it (in the example below, the file
+   is named `nice-samples.janet`).
 
 Now it should look something like:
 
