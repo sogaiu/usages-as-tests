@@ -2859,7 +2859,7 @@
              (wrap-as-test-call start-zloc end-zloc test-label)))))
   # navigate back out to top of block
   (when found-test
-    # morph comment block into upscope block if a test was found
+    # morph comment block into plain tuple -- to be unwrapped later
     (-> curr-zloc
         j/up
         j/down
