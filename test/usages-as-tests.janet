@@ -3666,9 +3666,9 @@
   (def src-root
     (path/join proj-root name/prog-name))
 
-  (handle-one {:judge-dir-name name/dot-dir-name
-               :proj-root proj-root
-               :src-root src-root})
+  (runner/handle-one {:judge-dir-name name/dot-dir-name
+                      :proj-root proj-root
+                      :src-root src-root})
 
   )
 
