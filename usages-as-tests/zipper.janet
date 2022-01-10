@@ -1149,9 +1149,11 @@
   )
 
 (def z/down down)
+(def z/insert-right insert-right)
 (def z/left left)
 (def z/node node)
 (def z/right right)
+(def z/rightmost rightmost)
 (def z/unwrap unwrap)
 (def z/zip zip)
 (def z/zipper zipper)

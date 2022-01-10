@@ -2112,9 +2112,11 @@
   )
 
 (def z/down down)
+(def z/insert-right insert-right)
 (def z/left left)
 (def z/node node)
 (def z/right right)
+(def z/rightmost rightmost)
 (def z/unwrap unwrap)
 (def z/zip zip)
 (def z/zipper zipper)
@@ -2461,10 +2463,12 @@
 (def j/end? end?)
 (def j/insert-child insert-child)
 (def j/insert-left insert-left)
+(def j/insert-right insert-right)
 (def j/left left)
 (def j/node node)
 (def j/replace replace)
 (def j/right right)
+(def j/rightmost rightmost)
 (def j/right-until right-until)
 (def j/root root)
 (def j/unwrap unwrap)
@@ -2864,6 +2868,10 @@
         j/up
         j/down
         (j/replace [:whitespace @{} "\n"])
+        # begin hack to prevent trailing whitespace once unwrapping occurs
+        j/rightmost
+        (j/insert-right [:keyword @{} ":smile"])
+        # end of hack
         j/up)))
 
 (comment
@@ -2906,7 +2914,7 @@
           "  # => right"                 "\n"
           `  2 "line-10 => right")`      "\n"
           "\n"
-          "  )")
+          "  :smile)")
 
   )
 
@@ -2954,7 +2962,7 @@
           "  # left => right"             "\n"
           `  2 "line-10 left => right")`  "\n"
           "\n"
-          "  )")
+          "  :smile)")
 
   )
 
@@ -3057,7 +3065,7 @@
           "  # =>"                "\n"
           `  2 "line-16")`        "\n"
           "\n"
-          "  "                    "\n"
+          "  :smile"              "\n"
           "\n"
           "(defn your-fn"         "\n"
           "  [y]"                 "\n"
@@ -3080,7 +3088,7 @@
           "\n"
           "  (def c 2)"           "\n"
           "\n"
-          "  "                    "\n")
+          "  :smile"              "\n")
 
   )
 
@@ -3132,7 +3140,7 @@
           "  # =>"           "\n"
           `  9 "line-15")`   "\n"
           "\n"
-          "  ")
+          "  :smile")
 
   )
 
