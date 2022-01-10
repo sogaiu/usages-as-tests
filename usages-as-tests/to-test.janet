@@ -392,7 +392,7 @@
     (-> curr-zloc
         j/up
         j/down
-        (j/replace [:whitespace @{} " "])
+        (j/replace [:whitespace @{} "\n"])
         j/up)))
 
 (comment
@@ -420,7 +420,8 @@
       j/root
       l/code)
   # =>
-  (string "( "                            "\n"
+  (string "("                            "\n"
+          "\n"
           "\n"
           "  (def a 1)"                  "\n"
           "\n"
@@ -467,7 +468,8 @@
 
   (rewrite-comment-block src)
   # =>
-  (string "( "                             "\n"
+  (string "("                             "\n"
+          "\n"
           "\n"
           "  (def a 1)"                   "\n"
           "\n"
@@ -569,7 +571,8 @@
           "  [x]"                 "\n"
           "  (+ x 1))"            "\n"
           "\n"
-          " "                     "\n"
+          "\n"
+          "\n"
           "\n"
           "  (def a 1)"           "\n"
           "\n"
@@ -589,7 +592,8 @@
           "  [y]"                 "\n"
           "  (* y y))"            "\n"
           "\n"
-          " "                     "\n"
+          "\n"
+          "\n"
           "\n"
           "  (_verify/is"         "\n"
           "  (your-fn 3)"         "\n"
@@ -637,7 +641,8 @@
   (rewrite src)
   # =>
   (string "\n"
-          " "                "\n"
+          "\n"
+          "\n"
           "\n"
           "  (_verify/is"    "\n"
           "  (-> ``"         "\n"
