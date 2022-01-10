@@ -1152,4 +1152,6 @@
 (def z/left left)
 (def z/node node)
 (def z/right right)
+(def z/unwrap unwrap)
+(def z/zip zip)
 (def z/zipper zipper)

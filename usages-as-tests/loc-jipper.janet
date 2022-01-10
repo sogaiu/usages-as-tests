@@ -292,6 +292,8 @@
 (def j/right right)
 (def j/right-until right-until)
 (def j/root root)
+(def j/unwrap unwrap)
 (def j/up up)
 (def j/wrap wrap)
+(def j/zip zip)
 (def j/zip-down zip-down)

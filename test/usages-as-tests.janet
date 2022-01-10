@@ -2115,6 +2115,8 @@
 (def z/left left)
 (def z/node node)
 (def z/right right)
+(def z/unwrap unwrap)
+(def z/zip zip)
 (def z/zipper zipper)
 
 (defn has-children?
@@ -2409,8 +2411,10 @@
 (def j/right right)
 (def j/right-until right-until)
 (def j/root root)
+(def j/unwrap unwrap)
 (def j/up up)
 (def j/wrap wrap)
+(def j/zip zip)
 (def j/zip-down zip-down)
 
 # ti == test indicator, which can look like any of:
@@ -2798,14 +2802,13 @@
              (set found-test true)
              (wrap-as-test-call start-zloc end-zloc test-label)))))
   # navigate back out to top of block
-  (if found-test
+  (when found-test
     # morph comment block into upscope block if a test was found
     (-> curr-zloc
         j/up
         j/down
-        (j/replace [:symbol @{} "upscope"])
-        j/up)
-    (j/up curr-zloc)))
+        (j/replace [:whitespace @{} " "])
+        j/up)))
 
 (comment
 
@@ -2832,7 +2835,7 @@
       j/root
       l/code)
   # =>
-  (string "(upscope"                     "\n"
+  (string "( "                            "\n"
           "\n"
           "  (def a 1)"                  "\n"
           "\n"
@@ -2879,7 +2882,7 @@
 
   (rewrite-comment-block src)
   # =>
-  (string "(upscope"                      "\n"
+  (string "( "                             "\n"
           "\n"
           "  (def a 1)"                   "\n"
           "\n"
@@ -2915,9 +2918,12 @@
                             |(match (j/node $)
                                [:tuple _ [:symbol _ "comment"]]
                                true))]
-      # rewrite the located top-level comment block
+      # may be rewrite the located top-level comment block
       (set curr-zloc
-           (rewrite-comment-zloc comment-zloc))
+           (if-let [rewritten-zloc
+                    (rewrite-comment-zloc comment-zloc)]
+             (j/unwrap rewritten-zloc)
+             comment-zloc))
       (break)))
   (-> curr-zloc
       j/root
@@ -2978,7 +2984,7 @@
           "  [x]"                 "\n"
           "  (+ x 1))"            "\n"
           "\n"
-          "(upscope"              "\n"
+          " "                     "\n"
           "\n"
           "  (def a 1)"           "\n"
           "\n"
@@ -2992,13 +2998,13 @@
           "  # =>"                "\n"
           `  2 "line-16")`        "\n"
           "\n"
-          "  )"                   "\n"
+          "  "                    "\n"
           "\n"
           "(defn your-fn"         "\n"
           "  [y]"                 "\n"
           "  (* y y))"            "\n"
           "\n"
-          "(upscope"              "\n"
+          " "                     "\n"
           "\n"
           "  (_verify/is"         "\n"
           "  (your-fn 3)"         "\n"
@@ -3014,7 +3020,7 @@
           "\n"
           "  (def c 2)"           "\n"
           "\n"
-          "  )"                   "\n")
+          "  "                    "\n")
 
   )
 
@@ -3046,7 +3052,7 @@
   (rewrite src)
   # =>
   (string "\n"
-          "(upscope"         "\n"
+          " "                "\n"
           "\n"
           "  (_verify/is"    "\n"
           "  (-> ``"         "\n"
@@ -3065,7 +3071,7 @@
           "  # =>"           "\n"
           `  9 "line-15")`   "\n"
           "\n"
-          "  )")
+          "  ")
 
   )
 
