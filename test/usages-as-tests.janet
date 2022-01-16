@@ -1500,7 +1500,7 @@
 
 (defn remove
   ``
-  Removes the node at `zoc`, returning the z-location that would have
+  Removes the node at `zloc`, returning the z-location that would have
   preceded it in a depth-first walk.
   Throws an error if called at the root z-location.
   ``
@@ -1856,6 +1856,46 @@
 
   )
 
+(defn left-until
+  ``
+  Try to move left from `zloc`, calling `pred` for each
+  left sibling.  If the `pred` call has a truthy result,
+  return the corresponding left sibling.
+  Otherwise, return nil.
+  ``
+  [zloc pred]
+  (when-let [left-sib (left zloc)]
+    (if (pred left-sib)
+      left-sib
+      (left-until left-sib pred))))
+
+(comment
+
+  (-> [:code
+       [:tuple
+        [:comment "# hi there"] [:whitespace "\n"]
+        [:symbol "+"] [:whitespace " "]
+        [:number "1"] [:whitespace " "]
+        [:number "2"]]]
+      zip
+      down
+      right
+      down
+      rightmost
+      (left-until |(match (node $)
+                      [:comment]
+                      false
+                      #
+                      [:whitespace]
+                      false
+                      #
+                      true))
+      node)
+  # =>
+  [:number "1"]
+
+  )
+
 (defn search-from
   ``
   Successively call `pred` on z-locations starting at `zloc`
@@ -2114,8 +2154,10 @@
 (def z/down down)
 (def z/insert-right insert-right)
 (def z/left left)
+(def z/left-until left-until)
 (def z/node node)
 (def z/right right)
+(def z/right-until right-until)
 (def z/rightmost rightmost)
 (def z/unwrap unwrap)
 (def z/zip zip)
@@ -2263,59 +2305,6 @@
 
   )
 
-(defn right-until
-  ``
-  Try to move right from `zloc`, calling `pred` for each
-  right sibling.  If the `pred` call has a truthy result,
-  return the corresponding right sibling.
-  Otherwise, return nil.
-  ``
-  [zloc pred]
-  (when-let [right-sib (z/right zloc)]
-    (if (pred right-sib)
-      right-sib
-      (right-until right-sib pred))))
-
-(comment
-
-  (-> [:code @{}
-       [:tuple @{}
-        [:comment @{} "# hi there"] [:whitespace @{} "\n"]
-        [:symbol @{} "+"] [:whitespace @{} " "]
-        [:number @{} "1"] [:whitespace @{} " "]
-        [:number @{} "2"]]]
-      zip-down
-      z/down
-      (right-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true))
-      z/node)
-  # =>
-  [:symbol @{} "+"]
-
-  (-> [:code @{}
-       [:tuple @{}
-        [:keyword @{} ":a"]]]
-      zip-down
-      z/down
-      (right-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true)))
-  # =>
-  nil
-
-  )
-
 # wsc == whitespace, comment
 (defn right-skip-wsc
   ``
@@ -2327,15 +2316,15 @@
   return nil.
   ``
   [zloc]
-  (right-until zloc
-               |(match (z/node $)
-                  [:whitespace]
-                  false
-                  #
-                  [:comment]
-                  false
-                  #
-                  true)))
+  (z/right-until zloc
+                 |(match (z/node $)
+                    [:whitespace]
+                    false
+                    #
+                    [:comment]
+                    false
+                    #
+                    true)))
 
 (comment
 
@@ -2362,62 +2351,6 @@
 
   )
 
-(defn left-until
-  ``
-  Try to move left from `zloc`, calling `pred` for each
-  left sibling.  If the `pred` call has a truthy result,
-  return the corresponding left sibling.
-  Otherwise, return nil.
-  ``
-  [zloc pred]
-  (when-let [left-sib (z/left zloc)]
-    (if (pred left-sib)
-      left-sib
-      (left-until left-sib pred))))
-
-(comment
-
-  #(import ./location :as l)
-
-  (-> (l/ast
-        ``
-        (# hi there
-        + 1 2)
-        ``)
-      zip-down
-      z/down
-      right-skip-wsc
-      right-skip-wsc
-      (left-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true))
-      z/node)
-  # =>
-  [:symbol @{:bc 1 :bl 2 :ec 2 :el 2} "+"]
-
-  (-> [:code @{}
-       [:tuple @{}
-        [:keyword @{} ":a"]]]
-      zip-down
-      z/down
-      (left-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true)))
-  # =>
-  nil
-
-  )
-
 (defn left-skip-wsc
   ``
   Try to move left from `zloc`, skipping over whitespace
@@ -2428,15 +2361,15 @@
   return nil.
   ``
   [zloc]
-  (left-until zloc
-               |(match (z/node $)
-                  [:whitespace]
-                  false
-                  #
-                  [:comment]
-                  false
-                  #
-                  true)))
+  (z/left-until zloc
+                |(match (z/node $)
+                   [:whitespace]
+                   false
+                   #
+                   [:comment]
+                   false
+                   #
+                   true)))
 
 (comment
 
@@ -2455,6 +2388,13 @@
       z/node)
   # =>
   [:symbol @{:bc 1 :bl 2 :ec 2 :el 2} "+"]
+
+  (-> (l/ast "(:a)")
+      zip-down
+      z/down
+      left-skip-wsc)
+  # =>
+  nil
 
   )
 

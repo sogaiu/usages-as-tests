@@ -537,7 +537,7 @@
 
 (defn remove
   ``
-  Removes the node at `zoc`, returning the z-location that would have
+  Removes the node at `zloc`, returning the z-location that would have
   preceded it in a depth-first walk.
   Throws an error if called at the root z-location.
   ``
@@ -893,6 +893,46 @@
 
   )
 
+(defn left-until
+  ``
+  Try to move left from `zloc`, calling `pred` for each
+  left sibling.  If the `pred` call has a truthy result,
+  return the corresponding left sibling.
+  Otherwise, return nil.
+  ``
+  [zloc pred]
+  (when-let [left-sib (left zloc)]
+    (if (pred left-sib)
+      left-sib
+      (left-until left-sib pred))))
+
+(comment
+
+  (-> [:code
+       [:tuple
+        [:comment "# hi there"] [:whitespace "\n"]
+        [:symbol "+"] [:whitespace " "]
+        [:number "1"] [:whitespace " "]
+        [:number "2"]]]
+      zip
+      down
+      right
+      down
+      rightmost
+      (left-until |(match (node $)
+                      [:comment]
+                      false
+                      #
+                      [:whitespace]
+                      false
+                      #
+                      true))
+      node)
+  # =>
+  [:number "1"]
+
+  )
+
 (defn search-from
   ``
   Successively call `pred` on z-locations starting at `zloc`
@@ -1151,8 +1191,10 @@
 (def z/down down)
 (def z/insert-right insert-right)
 (def z/left left)
+(def z/left-until left-until)
 (def z/node node)
 (def z/right right)
+(def z/right-until right-until)
 (def z/rightmost rightmost)
 (def z/unwrap unwrap)
 (def z/zip zip)

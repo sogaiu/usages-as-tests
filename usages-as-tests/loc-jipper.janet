@@ -142,59 +142,6 @@
 
   )
 
-(defn right-until
-  ``
-  Try to move right from `zloc`, calling `pred` for each
-  right sibling.  If the `pred` call has a truthy result,
-  return the corresponding right sibling.
-  Otherwise, return nil.
-  ``
-  [zloc pred]
-  (when-let [right-sib (z/right zloc)]
-    (if (pred right-sib)
-      right-sib
-      (right-until right-sib pred))))
-
-(comment
-
-  (-> [:code @{}
-       [:tuple @{}
-        [:comment @{} "# hi there"] [:whitespace @{} "\n"]
-        [:symbol @{} "+"] [:whitespace @{} " "]
-        [:number @{} "1"] [:whitespace @{} " "]
-        [:number @{} "2"]]]
-      zip-down
-      z/down
-      (right-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true))
-      z/node)
-  # =>
-  [:symbol @{} "+"]
-
-  (-> [:code @{}
-       [:tuple @{}
-        [:keyword @{} ":a"]]]
-      zip-down
-      z/down
-      (right-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true)))
-  # =>
-  nil
-
-  )
-
 # wsc == whitespace, comment
 (defn right-skip-wsc
   ``
@@ -206,15 +153,15 @@
   return nil.
   ``
   [zloc]
-  (right-until zloc
-               |(match (z/node $)
-                  [:whitespace]
-                  false
-                  #
-                  [:comment]
-                  false
-                  #
-                  true)))
+  (z/right-until zloc
+                 |(match (z/node $)
+                    [:whitespace]
+                    false
+                    #
+                    [:comment]
+                    false
+                    #
+                    true)))
 
 (comment
 
@@ -241,62 +188,6 @@
 
   )
 
-(defn left-until
-  ``
-  Try to move left from `zloc`, calling `pred` for each
-  left sibling.  If the `pred` call has a truthy result,
-  return the corresponding left sibling.
-  Otherwise, return nil.
-  ``
-  [zloc pred]
-  (when-let [left-sib (z/left zloc)]
-    (if (pred left-sib)
-      left-sib
-      (left-until left-sib pred))))
-
-(comment
-
-  #(import ./location :as l)
-
-  (-> (l/ast
-        ``
-        (# hi there
-        + 1 2)
-        ``)
-      zip-down
-      z/down
-      right-skip-wsc
-      right-skip-wsc
-      (left-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true))
-      z/node)
-  # =>
-  [:symbol @{:bc 1 :bl 2 :ec 2 :el 2} "+"]
-
-  (-> [:code @{}
-       [:tuple @{}
-        [:keyword @{} ":a"]]]
-      zip-down
-      z/down
-      (left-until |(match (z/node $)
-                      [:comment]
-                      false
-                      #
-                      [:whitespace]
-                      false
-                      #
-                      true)))
-  # =>
-  nil
-
-  )
-
 (defn left-skip-wsc
   ``
   Try to move left from `zloc`, skipping over whitespace
@@ -307,15 +198,15 @@
   return nil.
   ``
   [zloc]
-  (left-until zloc
-               |(match (z/node $)
-                  [:whitespace]
-                  false
-                  #
-                  [:comment]
-                  false
-                  #
-                  true)))
+  (z/left-until zloc
+                |(match (z/node $)
+                   [:whitespace]
+                   false
+                   #
+                   [:comment]
+                   false
+                   #
+                   true)))
 
 (comment
 
@@ -334,6 +225,13 @@
       z/node)
   # =>
   [:symbol @{:bc 1 :bl 2 :ec 2 :el 2} "+"]
+
+  (-> (l/ast "(:a)")
+      zip-down
+      z/down
+      left-skip-wsc)
+  # =>
+  nil
 
   )
 
