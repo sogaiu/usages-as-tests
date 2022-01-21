@@ -25,15 +25,17 @@
             (string (utils/no-ext path) ".judge"))
           (let [out-path (path/join judge-root
                                     ;subdirs
-                                    judge-file-name)]
-            (unless (generate/handle-one {:input in-path
-                                          :output out-path})
+                                    judge-file-name)
+                result (generate/handle-one {:input in-path
+                                             :output out-path})]
+            (unless result
               (eprintf "Test generation failed for: %s" in-path)
               (eprintf "Please confirm validity of source file: %s" in-path)
               (error nil))
-            (put out-in-tbl
-                 (path/abspath out-path)
-                 (path/abspath in-path)))))))
+            (unless (= result :no-tests)
+              (put out-in-tbl
+                   (path/abspath out-path)
+                   (path/abspath in-path))))))))
   #
   (helper src-root subdirs judge-root)
   out-in-tbl)

@@ -26,7 +26,7 @@
         (eprintf "rewrite failed")
         nil)))
   (when (nil? rewritten)
-      (break false))
+    (break :no-tests))
   (if (not= "" output)
     (spit output rewritten)
     (print rewritten))

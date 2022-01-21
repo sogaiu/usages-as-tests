@@ -2908,6 +2908,7 @@
 
 (defn rewrite
   [src]
+  (var changed nil)
   (var curr-zloc
     (-> (l/ast src)
         j/zip-down
@@ -2928,12 +2929,15 @@
       (set curr-zloc
            (if-let [rewritten-zloc
                     (rewrite-comment-zloc comment-zloc)]
-             (j/unwrap rewritten-zloc)
+             (do
+               (set changed true)
+               (j/unwrap rewritten-zloc))
              comment-zloc))
       (break)))
-  (-> curr-zloc
-      j/root
-      l/code))
+  (when changed
+    (-> curr-zloc
+        j/root
+        l/code)))
 
 (comment
 
@@ -3135,16 +3139,17 @@
 
 (defn rewrite-as-test-file
   [src]
-  (string verify-as-string
-          "\n"
-          "(_verify/start-tests)"
-          "\n"
-          (rewrite src)
-          "\n"
-          "(_verify/end-tests)"
-          "\n"
-          "(_verify/dump-results)"
-          "\n"))
+  (when-let [rewritten (rewrite src)]
+    (string verify-as-string
+            "\n"
+            "(_verify/start-tests)"
+            "\n"
+            rewritten
+            "\n"
+            "(_verify/end-tests)"
+            "\n"
+            "(_verify/dump-results)"
+            "\n")))
 
 # no tests so won't be executed
 (comment
@@ -3210,7 +3215,7 @@
         (eprintf "rewrite failed")
         nil)))
   (when (nil? rewritten)
-      (break false))
+    (break :no-tests))
   (if (not= "" output)
     (spit output rewritten)
     (print rewritten))
@@ -3293,15 +3298,17 @@
             (string (utils/no-ext path) ".judge"))
           (let [out-path (path/join judge-root
                                     ;subdirs
-                                    judge-file-name)]
-            (unless (generate/handle-one {:input in-path
-                                          :output out-path})
+                                    judge-file-name)
+                result (generate/handle-one {:input in-path
+                                             :output out-path})]
+            (unless result
               (eprintf "Test generation failed for: %s" in-path)
               (eprintf "Please confirm validity of source file: %s" in-path)
               (error nil))
-            (put out-in-tbl
-                 (path/abspath out-path)
-                 (path/abspath in-path)))))))
+            (unless (= result :no-tests)
+              (put out-in-tbl
+                   (path/abspath out-path)
+                   (path/abspath in-path))))))))
   #
   (helper src-root subdirs judge-root)
   out-in-tbl)
