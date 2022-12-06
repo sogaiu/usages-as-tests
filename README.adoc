@@ -96,7 +96,6 @@ in files that live in an appropriate directory.
 
 This repository can serve as an example, but here are some others:
 
-* https://github.com/sogaiu/jandent[jandent]
 * https://github.com/sogaiu/janet-bits[janet-bits]
 * https://github.com/sogaiu/janet-editor-elf[janet-editor-elf]
 * https://github.com/sogaiu/janet-zipper[janet-zipper]
